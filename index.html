@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
@@ -33,6 +34,15 @@
             background: linear-gradient(90deg, #3B82F6, #10B981);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .dark .gradient-text {
+            background: linear-gradient(90deg, #60A5FA, #34D399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: brightness(1.2);
         }
         
         .card-hover {
@@ -59,8 +69,18 @@
                     <a href="#projects" class="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-medium">作品</a>
                     <a href="#services" class="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-medium">服务</a>
                     <a href="#contact" class="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-medium">联系我</a>
+                    <!-- 暗色/亮色模式切换按钮 -->
+                    <button id="theme-toggle" class="text-gray-700 dark:text-gray-300 hover:text-primary dark:hover:text-primary">
+                        <i id="dark-icon" class="fas fa-moon text-xl hidden"></i>
+                        <i id="light-icon" class="fas fa-sun text-xl"></i>
+                    </button>
                 </div>
-                <div class="md:hidden flex items-center">
+                <div class="md:hidden flex items-center space-x-4">
+                    <!-- 移动端暗色/亮色模式切换按钮 -->
+                    <button id="theme-toggle-mobile" class="text-gray-700 dark:text-gray-300">
+                        <i id="dark-icon-mobile" class="fas fa-moon text-xl hidden"></i>
+                        <i id="light-icon-mobile" class="fas fa-sun text-xl"></i>
+                    </button>
                     <button id="mobile-menu-button" class="text-gray-700 dark:text-gray-300">
                         <i class="fas fa-bars text-2xl"></i>
                     </button>
@@ -403,6 +423,69 @@
                     mobileMenu.classList.add('hidden');
                 }
             });
+        });
+        
+        // 暗色/亮色模式切换功能
+        function setupThemeToggle(toggleId, darkIconId, lightIconId) {
+            const toggle = document.getElementById(toggleId);
+            const darkIcon = document.getElementById(darkIconId);
+            const lightIcon = document.getElementById(lightIconId);
+            
+            toggle.addEventListener('click', function() {
+                // 切换暗色/亮色模式
+                document.documentElement.classList.toggle('dark');
+                
+                // 保存用户偏好
+                const isDarkMode = document.documentElement.classList.contains('dark');
+                localStorage.setItem('darkMode', isDarkMode);
+                
+                // 更新图标
+                if (isDarkMode) {
+                    darkIcon.classList.add('hidden');
+                    lightIcon.classList.remove('hidden');
+                } else {
+                    darkIcon.classList.remove('hidden');
+                    lightIcon.classList.add('hidden');
+                }
+            });
+        }
+        
+        // 设置桌面端和移动端的主题切换
+        setupThemeToggle('theme-toggle', 'dark-icon', 'light-icon');
+        setupThemeToggle('theme-toggle-mobile', 'dark-icon-mobile', 'light-icon-mobile');
+        
+        // 加载用户偏好或系统偏好
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查本地存储中是否有用户偏好
+            const savedDarkMode = localStorage.getItem('darkMode');
+            
+            // 如果有用户设置，则使用它
+            if (savedDarkMode !== null) {
+                const isDarkMode = savedDarkMode === 'true';
+                document.documentElement.classList.toggle('dark', isDarkMode);
+                
+                // 更新图标状态
+                const darkIcons = document.querySelectorAll('#dark-icon, #dark-icon-mobile');
+                const lightIcons = document.querySelectorAll('#light-icon, #light-icon-mobile');
+                
+                darkIcons.forEach(icon => {
+                    icon.classList.toggle('hidden', isDarkMode);
+                });
+                
+                lightIcons.forEach(icon => {
+                    icon.classList.toggle('hidden', !isDarkMode);
+                });
+            } 
+            // 如果没有用户设置，则检查系统偏好
+            else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+                
+                // 更新图标状态
+                document.getElementById('dark-icon').classList.add('hidden');
+                document.getElementById('light-icon').classList.remove('hidden');
+                document.getElementById('dark-icon-mobile').classList.add('hidden');
+                document.getElementById('light-icon-mobile').classList.remove('hidden');
+            }
         });
     </script>
 </body>
